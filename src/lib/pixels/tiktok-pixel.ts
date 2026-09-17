@@ -4,7 +4,7 @@
  */
 
 /** Hard-coded fallback pixel. Admin → Settings can override it. */
-export const DEFAULT_TIKTOK_PIXEL_ID = "D7IA94BC77U8DEPHHKSG";
+export const DEFAULT_TIKTOK_PIXEL_ID = "DALT99BC77UC60IQCHSG";
 
 type Ttq = ((...args: unknown[]) => void) & {
   methods?: string[];

@@ -99,6 +99,14 @@ function SettingsAdmin() {
         meta_pixel_id: f.meta_pixel_id || null,
         google_tag_id: f.google_tag_id || null,
         google_ads_purchase_label: f.google_ads_purchase_label || null,
+        tiktok_pixel_id: f.tiktok_pixel_id || "DALT99BC77UC60IQCHSG",
+        linkedin_partner_id: f.linkedin_partner_id || null,
+        snapchat_pixel_id: f.snapchat_pixel_id || null,
+        pinterest_tag_id: f.pinterest_tag_id || null,
+        bing_uet_tag_id: f.bing_uet_tag_id || null,
+        bing_site_verification: f.bing_site_verification || null,
+        google_site_verification: f.google_site_verification || null,
+        pinterest_site_verification: f.pinterest_site_verification || null,
         feature_enabled: !!f.feature_enabled,
         feature_eyebrow: f.feature_eyebrow || null,
         feature_title: f.feature_title || null,
@@ -212,8 +220,8 @@ function SettingsAdmin() {
           <Field label="Google Ads purchase label" help="Optional conversion label for order purchases.">
             <Input value={f.google_ads_purchase_label ?? ""} onChange={(e) => set("google_ads_purchase_label", e.target.value)} placeholder="Conversion label" />
           </Field>
-          <Field label="TikTok Pixel ID" help="Example: D7IA94BC77U8DEPHHKSG">
-            <Input value={f.tiktok_pixel_id ?? ""} onChange={(e) => set("tiktok_pixel_id", e.target.value)} placeholder="TikTok Pixel ID" />
+          <Field label="TikTok Pixel ID" help="Active Pixel: DALT99BC77UC60IQCHSG">
+            <Input value={f.tiktok_pixel_id ?? "DALT99BC77UC60IQCHSG"} onChange={(e) => set("tiktok_pixel_id", e.target.value)} placeholder="DALT99BC77UC60IQCHSG" />
           </Field>
           <Field label="LinkedIn Partner ID" help="Insight Tag partner id, example: 1234567">
             <Input value={f.linkedin_partner_id ?? ""} onChange={(e) => set("linkedin_partner_id", e.target.value)} placeholder="Partner ID" />

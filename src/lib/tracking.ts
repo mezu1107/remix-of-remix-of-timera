@@ -200,13 +200,28 @@ function fireBrowserPixels(name: TrackingEventName, payload: TrackingPayload) {
   });
 
   // TikTok
-  tiktokTrack(tiktokEventName[name] ?? "ClickButton", {
+  const rawItems = Array.isArray(payload.metadata?.items) ? (payload.metadata.items as any[]) : [];
+  const tiktokContents = rawItems.map((it) => ({
+    content_id: String(it.item_id || it.id || it.product_id || ""),
+    content_name: String(it.item_name || it.name || it.product_name || ""),
+    quantity: Number(it.quantity || 1),
+    price: Number(it.price || 0),
+  })).filter((c) => Boolean(c.content_id || c.content_name));
+
+  const tiktokParams: Record<string, unknown> = {
     content_id: payload.productId,
     content_name: payload.productName,
-    content_type: payload.productId ? "product" : undefined,
+    content_type: payload.productId || tiktokContents.length > 0 ? "product" : undefined,
     value,
     currency,
-  });
+    order_id: payload.orderNumber,
+    query: typeof payload.metadata?.query === "string" ? payload.metadata.query : undefined,
+  };
+  if (tiktokContents.length > 0) {
+    tiktokParams.contents = tiktokContents;
+  }
+
+  tiktokTrack(tiktokEventName[name] ?? "ClickButton", tiktokParams);
 
   // Snapchat
   snapTrack(snapEventName[name] ?? "CUSTOM_EVENT_1", {
