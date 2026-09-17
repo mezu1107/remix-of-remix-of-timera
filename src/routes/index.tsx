@@ -312,11 +312,10 @@ function HeroSlider() {
                   key={i}
                   onClick={() => setIndex(i)}
                   aria-label={`Go to slide ${i + 1}`}
-                  className={`h-1 rounded-full transition-all duration-500 ${
-                    i === index
+                  className={`h-1 rounded-full transition-all duration-500 ${i === index
                       ? "w-8 bg-[#B08D57]"
                       : "w-3 bg-white/30"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -506,11 +505,10 @@ function TestimonialsSection() {
   }) => (
     <div className="group relative mt-6 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
       <div
-        className={`flex w-max ${
-          reverse
+        className={`flex w-max ${reverse
             ? "marquee-reverse"
             : "marquee-slow"
-        } group-hover:[animation-play-state:paused]`}
+          } group-hover:[animation-play-state:paused]`}
       >
         {[...items, ...items].map((t, i) => (
           <Card
@@ -790,8 +788,8 @@ function FinalCta() {
             Cash on Delivery across Pakistan.{" "}
             {paySettings?.warrantyMonths
               ? `${Math.round(
-                  paySettings.warrantyMonths / 12,
-                )}-year warranty`
+                paySettings.warrantyMonths / 12,
+              )}-year warranty`
               : "1-year warranty"}{" "}
             on every watch. Order now and receive it
             in 2–4 business days.
