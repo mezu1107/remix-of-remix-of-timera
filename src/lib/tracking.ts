@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { initMetaPixel, metaTrack, metaTrackCustom, type MetaStandardEvent } from "@/lib/pixels/meta-pixel";
 import { googleAdsConversion, googleTrack, initGooglePixel } from "@/lib/pixels/google-pixel";
-import { tiktokTrack } from "@/lib/pixels/tiktok-pixel";
+import { tiktokTrack, tiktokIdentify } from "@/lib/pixels/tiktok-pixel";
 import { snapTrack } from "@/lib/pixels/snapchat-pixel";
 import { pinterestTrack } from "@/lib/pixels/pinterest-pixel";
 import { bingTrack } from "@/lib/pixels/bing-pixel";
@@ -15,6 +15,7 @@ export type TrackingEventName =
   | "remove_from_cart"
   | "begin_checkout"
   | "add_payment_info"
+  | "place_order"
   | "purchase"
   | "search"
   | "view_cart"
@@ -58,6 +59,7 @@ const metaEventName: Record<TrackingEventName, MetaStandardEvent | null> = {
   remove_from_cart: null,
   begin_checkout: "InitiateCheckout",
   add_payment_info: "AddPaymentInfo",
+  place_order: "Purchase",
   purchase: "Purchase",
   search: "Search",
   view_cart: "ViewContent",
@@ -89,6 +91,7 @@ const googleEventName: Record<TrackingEventName, string> = {
   remove_from_cart: "remove_from_cart",
   begin_checkout: "begin_checkout",
   add_payment_info: "add_payment_info",
+  place_order: "purchase",
   purchase: "purchase",
   search: "search",
   view_cart: "view_cart",
@@ -112,7 +115,7 @@ const googleEventName: Record<TrackingEventName, string> = {
   sticky_buy_click: "select_item",
 };
 
-/** TikTok standard events. */
+/** TikTok standard events matching TikTok Pixel specification. */
 const tiktokEventName: Partial<Record<TrackingEventName, string>> = {
   page_view: "Pageview",
   view_item: "ViewContent",
@@ -122,7 +125,8 @@ const tiktokEventName: Partial<Record<TrackingEventName, string>> = {
   add_to_wishlist: "AddToWishlist",
   begin_checkout: "InitiateCheckout",
   add_payment_info: "AddPaymentInfo",
-  purchase: "CompletePayment",
+  place_order: "PlaceAnOrder",
+  purchase: "Purchase",
   search: "Search",
   sign_up: "CompleteRegistration",
   contact: "Contact",
@@ -142,6 +146,7 @@ const snapEventName: Partial<Record<TrackingEventName, string>> = {
   add_to_wishlist: "ADD_TO_WISHLIST",
   begin_checkout: "START_CHECKOUT",
   add_payment_info: "ADD_BILLING",
+  place_order: "PURCHASE",
   purchase: "PURCHASE",
   search: "SEARCH",
   sign_up: "SIGN_UP",
@@ -160,6 +165,7 @@ const pinterestEventName: Partial<Record<TrackingEventName, string>> = {
   quick_view: "pagevisit",
   add_to_cart: "addtocart",
   begin_checkout: "checkout",
+  place_order: "checkout",
   purchase: "checkout",
   search: "search",
   sign_up: "signup",
@@ -199,7 +205,18 @@ function fireBrowserPixels(name: TrackingEventName, payload: TrackingPayload) {
     item_name: payload.productName,
   });
 
-  // TikTok
+  // TikTok Identify if customer PII is present in metadata/payload
+  const metaEmail = typeof payload.metadata?.email === "string" ? payload.metadata.email : undefined;
+  const metaPhone = typeof payload.metadata?.phone === "string" ? payload.metadata.phone : undefined;
+  if (metaEmail || metaPhone || payload.orderNumber) {
+    void tiktokIdentify({
+      email: metaEmail,
+      phone: metaPhone,
+      externalId: payload.orderNumber,
+    });
+  }
+
+  // TikTok Track
   const rawItems = Array.isArray(payload.metadata?.items) ? (payload.metadata.items as any[]) : [];
   const tiktokContents = rawItems.map((it) => ({
     content_id: String(it.item_id || it.id || it.product_id || ""),
@@ -216,12 +233,17 @@ function fireBrowserPixels(name: TrackingEventName, payload: TrackingPayload) {
     currency,
     order_id: payload.orderNumber,
     query: typeof payload.metadata?.query === "string" ? payload.metadata.query : undefined,
+    search_string: typeof payload.metadata?.query === "string" ? payload.metadata.query : undefined,
   };
   if (tiktokContents.length > 0) {
     tiktokParams.contents = tiktokContents;
   }
 
-  tiktokTrack(tiktokEventName[name] ?? "ClickButton", tiktokParams);
+  const ttName = tiktokEventName[name];
+  if (ttName) {
+    const eventId = typeof payload.metadata?.event_id === "string" ? payload.metadata.event_id : undefined;
+    tiktokTrack(ttName, tiktokParams, { event_id: eventId });
+  }
 
   // Snapchat
   snapTrack(snapEventName[name] ?? "CUSTOM_EVENT_1", {

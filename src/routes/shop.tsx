@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { aiSearchProducts } from "@/lib/ai.functions";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/tracking";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -211,7 +212,11 @@ function ShopPage() {
           className="mt-3 flex flex-col gap-3 sm:flex-row"
           onSubmit={(e) => {
             e.preventDefault();
-            if (aiQuery.trim().length > 1) aiSearch.mutate(aiQuery.trim());
+            const q = aiQuery.trim();
+            if (q.length > 1) {
+              void trackEvent("search", { metadata: { query: q } });
+              aiSearch.mutate(q);
+            }
           }}
         >
           <Input

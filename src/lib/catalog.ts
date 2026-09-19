@@ -316,7 +316,7 @@ export const heroSlidesQuery = queryOptions({
       .eq("active", true)
       .order("sort_order", { ascending: true });
     if (error) throw error;
-    return (data ?? []).map((r) => ({
+    return (data ?? []).map((r: any) => ({
       id: r.id,
       eyebrow: r.eyebrow,
       title: r.title,

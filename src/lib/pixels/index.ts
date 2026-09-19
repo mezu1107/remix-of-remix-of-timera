@@ -21,6 +21,8 @@ export {
   tiktokPixelIds,
   tiktokPage,
   tiktokTrack,
+  tiktokIdentify,
+  sha256,
 } from "./tiktok-pixel";
 
 export { initLinkedInPixel, isLinkedInPixelReady, linkedInTrack } from "./linkedin-pixel";

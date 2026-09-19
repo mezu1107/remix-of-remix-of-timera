@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { siteSettingsQuery } from "@/lib/site-settings";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/tracking";
 
 /* ------------------------------------------------------------------ */
 /* Navigation structure — aligned with Pakistan watch market categories */
@@ -119,6 +120,7 @@ function SearchBar({ onClose }: { onClose?: () => void }) {
     const term = q.trim();
     if (!term) return;
     onClose?.();
+    void trackEvent("search", { metadata: { query: term } });
     navigate({ to: "/shop", search: { q: term } as any });
   }
 

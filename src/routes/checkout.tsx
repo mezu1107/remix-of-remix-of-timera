@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/tracking";
+import { tiktokIdentify } from "@/lib/pixels/tiktok-pixel";
 import { captureLead } from "@/lib/leads";
 import { FreeShipProgress } from "@/components/conversion/FreeShipProgress";
 import { captureAttribution, attributionForOrder } from "@/lib/attribution";
@@ -219,6 +220,9 @@ function CheckoutPage() {
     mutationFn: async (form: HTMLFormElement) => {
       const fd = new FormData(form);
       const get = (k: string) => String(fd.get(k) ?? "").trim();
+      const customerName = get("name");
+      const customerPhone = get("phone");
+      const customerEmail = get("email") || `${customerPhone}@timera.noemail`;
       const address = [get("address"), get("city"), get("province")]
         .filter(Boolean)
         .join(", ");
@@ -226,6 +230,29 @@ function CheckoutPage() {
         methods.find((m) => m.id === payMethod)?.label ?? "Cash on Delivery";
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
+
+      // 1. Track AddPaymentInfo when payment information is submitted
+      void trackEvent("add_payment_info", {
+        value: total,
+        currency: "PKR",
+        metadata: {
+          payment_method: payMethod,
+          email: customerEmail,
+          phone: customerPhone,
+          items: items.map((i) => ({
+            item_id: i.product.id,
+            item_name: i.product.name,
+            quantity: i.quantity,
+            price: effectivePrice(i.product),
+          })),
+        },
+      });
+
+      // 2. Identify customer with hashed PII before order placement
+      void tiktokIdentify({
+        email: customerEmail,
+        phone: customerPhone,
+      });
 
       // Capture attribution right before the order is placed
       captureAttribution();
@@ -238,15 +265,14 @@ function CheckoutPage() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          customer_name: get("name"),
-          customer_email: get("email") || `${get("phone")}@timera.noemail`,
-          customer_phone: get("phone") || null,
+          customer_name: customerName,
+          customer_email: customerEmail,
+          customer_phone: customerPhone || null,
           shipping_address: address,
           notes: [get("notes"), `Payment: ${methodLabel}`]
             .filter(Boolean)
             .join(" — "),
           coupon_code: appliedCode,
-          // Idempotency key — same key on retry returns the existing order
           idempotency_key: idempotencyKey.current,
           items: items.map((i) => ({
             product_id: i.product.id,
@@ -255,7 +281,6 @@ function CheckoutPage() {
             color: i.color ?? null,
             size: i.size ?? null,
           })),
-          // Attribution fields — stored on the order row for Meta CAPI + reporting
           ...(attr ?? {}),
         }),
       });
@@ -265,27 +290,22 @@ function CheckoutPage() {
         throw new Error(
           out?.error ?? "We couldn't save your order. Please try again.",
         );
-      return {
-        orderNumber: out.order?.order_number as string,
-        // Use the server-authoritative total for the Purchase pixel, not the
-        // client-calculated value which may differ due to coupon/shipping race
-        confirmedTotal: Number(out.order?.total ?? total),
-        // event_id matches what the CAPI handler will use: 'purchase_<order_uuid>'
-        // This is how browser pixel + server CAPI deduplicate the same conversion
-        eventId: String(out.event_id ?? ""),
-      };
-    },
 
-    onSuccess: (r) => {
-      // Fire browser pixel Purchase with the SERVER-confirmed total and the
-      // server-assigned event_id so it deduplicates against the CAPI call
-      void trackEvent("purchase", {
-        orderNumber: r.orderNumber,
-        value: r.confirmedTotal,          // ← server value, not client estimate
+      const orderNumber = out.order?.order_number as string;
+      const confirmedTotal = Number(out.order?.total ?? total);
+      const eventId = String(out.event_id || `order_${orderNumber}`);
+
+      // 3. Track PlaceAnOrder when order is placed successfully
+      void trackEvent("place_order", {
+        orderNumber,
+        value: confirmedTotal,
+        currency: "PKR",
         metadata: {
           coupon: appliedCode,
           payment_method: payMethod,
-          event_id: r.eventId,            // ← dedup key for Meta Events Manager
+          event_id: eventId,
+          email: customerEmail,
+          phone: customerPhone,
           items: items.map((i) => ({
             item_id: i.product.id,
             item_name: i.product.name,
@@ -294,7 +314,45 @@ function CheckoutPage() {
           })),
         },
       });
-      // Fire CAPI via our server bridge so it deduplicates with the browser pixel
+
+      return {
+        orderNumber,
+        confirmedTotal,
+        eventId,
+        email: customerEmail,
+        phone: customerPhone,
+      };
+    },
+
+    onSuccess: (r) => {
+      // 4. Identify customer with hashed PII including externalId
+      void tiktokIdentify({
+        email: r.email,
+        phone: r.phone,
+        externalId: r.orderNumber,
+      });
+
+      // 5. Track Purchase ONLY after successful order/payment confirmation
+      void trackEvent("purchase", {
+        orderNumber: r.orderNumber,
+        value: r.confirmedTotal,
+        currency: "PKR",
+        metadata: {
+          coupon: appliedCode,
+          payment_method: payMethod,
+          event_id: r.eventId,
+          email: r.email,
+          phone: r.phone,
+          items: items.map((i) => ({
+            item_id: i.product.id,
+            item_name: i.product.name,
+            quantity: i.quantity,
+            price: effectivePrice(i.product),
+          })),
+        },
+      });
+
+      // Fire Meta CAPI via server bridge
       void fetch("/api/public/v1/meta/event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -305,7 +363,7 @@ function CheckoutPage() {
           browser_sent: true,
           event_source_url: typeof window !== "undefined" ? window.location.href : undefined,
         }),
-      }).catch(() => { /* CAPI is best-effort; don't block the confirmation */ });
+      }).catch(() => { /* CAPI is best-effort */ });
 
       void captureLead({
         stage: "purchased",

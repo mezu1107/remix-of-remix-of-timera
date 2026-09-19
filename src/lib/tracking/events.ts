@@ -19,6 +19,7 @@ export const trackAddToWishlist = (p: TrackingPayload) => trackEvent("add_to_wis
 
 export const trackBeginCheckout = (p: TrackingPayload) => trackEvent("begin_checkout", p);
 export const trackAddPaymentInfo = (p: TrackingPayload) => trackEvent("add_payment_info", p);
+export const trackPlaceOrder = (p: TrackingPayload) => trackEvent("place_order", p);
 export const trackPurchase = (p: TrackingPayload) => trackEvent("purchase", p);
 export const trackCouponApplied = (code: string, value?: number) =>
   trackEvent("coupon_applied", { metadata: { code }, value });

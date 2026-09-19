@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { compressImage } from "./ImageField";
+import { uploadToStorage } from "@/lib/upload";
 import { colorSlug } from "@/lib/catalog";
 
 export type ColorRow = { name: string; hex: string; image: string };
@@ -146,10 +147,12 @@ function ColorPhotoPicker({ value, onChange }: { value: string; onChange: (v: st
     if (!file) return;
     setBusy(true);
     try {
-      onChange(await compressImage(file));
+      const compressed = await compressImage(file);
+      const url = await uploadToStorage(compressed, "colors");
+      onChange(url);
       toast.success("Photo ready — save to publish it");
     } catch (e: any) {
-      toast.error(e?.message ?? "Could not read that image");
+      toast.error(e?.message ?? "Could not upload that image");
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
