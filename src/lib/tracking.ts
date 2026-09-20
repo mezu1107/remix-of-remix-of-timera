@@ -59,7 +59,7 @@ const metaEventName: Record<TrackingEventName, MetaStandardEvent | null> = {
   remove_from_cart: null,
   begin_checkout: "InitiateCheckout",
   add_payment_info: "AddPaymentInfo",
-  place_order: "Purchase",
+  place_order: null,
   purchase: "Purchase",
   search: "Search",
   view_cart: "ViewContent",

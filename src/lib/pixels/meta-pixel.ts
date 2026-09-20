@@ -10,7 +10,7 @@
  */
 
 /** Hard-coded fallback pixel. Admin → Settings can override it at any time. */
-export const DEFAULT_META_PIXEL_ID = "1758262658709610";
+export const DEFAULT_META_PIXEL_ID = "2142980996256531";
 
 type FbqFn = ((...args: unknown[]) => void) & {
   callMethod?: (...args: unknown[]) => void;
@@ -101,7 +101,6 @@ export function initMetaPixel(pixelId?: string | null) {
     fbq("init", id);
     activePixels.add(id);
     injectNoscript(id);
-    fbq("track", "PageView");
   }
   return id;
 }

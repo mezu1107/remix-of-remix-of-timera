@@ -84,7 +84,7 @@ CREATE POLICY "Admins can write meta settings"
 CREATE TRIGGER meta_settings_touch BEFORE UPDATE ON public.meta_settings
   FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
 
-INSERT INTO public.meta_settings (pixel_id) VALUES ('1758262658709610');
+INSERT INTO public.meta_settings (pixel_id) VALUES ('2142980996256531');
 
 -- 4. Cached Meta Ads insights
 CREATE TABLE IF NOT EXISTS public.meta_insights_daily (
