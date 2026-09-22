@@ -1,9 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 
+const DEFAULT_SUPABASE_URL = "https://gggxfqmyanodyshwkijl.supabase.co";
+const DEFAULT_SUPABASE_KEY = "sb_publishable_qGXKDtJnGkd3OuOSRawWUw_60CKifyU";
+
 /** Server-side publishable Supabase client (RLS applies as anon). */
 export function publicSupabase() {
-  const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
-  return createClient(process.env.SUPABASE_URL!, key, {
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+  const key = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY || DEFAULT_SUPABASE_KEY;
+  return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {
       fetch: (input: any, init?: any) => {

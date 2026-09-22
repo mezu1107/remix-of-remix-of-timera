@@ -6,7 +6,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { Component, useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -153,6 +153,23 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+class SafeWidget extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error) {
+    console.warn("[SafeWidget caught error]:", error);
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -173,14 +190,14 @@ function RootComponent() {
         </main>
         <Footer />
         <CartDrawer />
-        <PromoPopup />
-        <TrackingPixels />
-        <AutoTracker />
-        <AiAssistant />
-        <FloatingWhatsApp fallbackNumber="" />
+        <SafeWidget><PromoPopup /></SafeWidget>
+        <SafeWidget><TrackingPixels /></SafeWidget>
+        <SafeWidget><AutoTracker /></SafeWidget>
+        <SafeWidget><AiAssistant /></SafeWidget>
+        <SafeWidget><FloatingWhatsApp fallbackNumber="" /></SafeWidget>
         <BackToTop />
-        <LiveSalesToast />
-        <ExitIntentOffer />
+        <SafeWidget><LiveSalesToast /></SafeWidget>
+        <SafeWidget><ExitIntentOffer /></SafeWidget>
         <Toaster position="bottom-right" theme="light" />
       </div>
     </QueryClientProvider>

@@ -12,33 +12,51 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 
-const BUCKET = "homepage-videos";
+const BUCKETS = ["homepage-videos", "media", "products", "public", "assets"];
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Failed to read image file"));
+    reader.readAsDataURL(file);
+  });
+}
 
 /**
  * Uploads a File to Supabase Storage and returns the public URL.
- * @param file   The File object from an <input type="file"> or drop event
- * @param folder Optional sub-folder, e.g. "hero", "products", "videos"
+ * Falls back to base64 Data URL if storage bucket is restricted or unconfigured.
  */
 export async function uploadToStorage(file: File, folder = "uploads"): Promise<string> {
-  // Build a unique path: folder/timestamp-randomhex-originalname
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "bin";
   const random = Math.random().toString(36).slice(2, 8);
   const path = `${folder}/${Date.now()}-${random}.${ext}`;
 
-  const { error } = await supabase.storage
-    .from(BUCKET)
-    .upload(path, file, {
-      cacheControl: "31536000", // 1 year cache
-      upsert: false,
-      contentType: file.type || undefined,
-    });
+  for (const bucket of BUCKETS) {
+    try {
+      const { error } = await supabase.storage
+        .from(bucket)
+        .upload(path, file, {
+          cacheControl: "31536000",
+          upsert: true,
+          contentType: file.type || undefined,
+        });
 
-  if (error) throw new Error(`Upload failed: ${error.message}`);
+      if (!error) {
+        const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+        if (data?.publicUrl) return data.publicUrl;
+      }
+    } catch {
+      // Try next bucket
+    }
+  }
 
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  if (!data?.publicUrl) throw new Error("Could not get public URL after upload");
+  // If storage buckets fail or aren't writable, fallback to base64 Data URL for images
+  if (file.type.startsWith("image/")) {
+    return await fileToDataUrl(file);
+  }
 
-  return data.publicUrl;
+  throw new Error("Could not upload file to storage bucket. Please check Supabase Storage permissions.");
 }
 
 /** Returns true if a string looks like a video file URL */

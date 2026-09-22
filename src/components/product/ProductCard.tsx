@@ -8,6 +8,8 @@ import { useCart, useWishlist } from "@/store/shop";
 import { cn, formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80";
+
 export function ProductCard({
   product,
   index = 0,
@@ -17,8 +19,10 @@ export function ProductCard({
   index?: number;
   priority?: boolean;
 }) {
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [hoverColor, setHoverColor] = useState<string | null>(null);
   const colorImage = product.colors.find((c) => c.name === hoverColor)?.image;
+  const currentSrc = imgSrc ?? colorImage ?? product.image;
   const add = useCart((s) => s.add);
   const toggleWish = useWishlist((s) => s.toggle);
   const inWish = useWishlist((s) => s.ids.includes(product.id));
@@ -36,13 +40,18 @@ export function ProductCard({
       <div className="relative overflow-hidden rounded-xl bg-card aspect-[4/5]">
         <Link to="/product/$slug" params={{ slug: product.slug }} className="block h-full w-full" tabIndex={-1}>
           <img
-            src={colorImage ?? product.image}
+            src={currentSrc || FALLBACK_IMAGE}
             alt={product.name}
             width={480}
             height={600}
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
             decoding="async"
+            onError={() => {
+              if (imgSrc !== FALLBACK_IMAGE) {
+                setImgSrc(FALLBACK_IMAGE);
+              }
+            }}
             className="h-full w-full object-cover transition-transform duration-[1000ms] ease-out group-hover:scale-[1.03]"
           />
           {/* Hover overlay */}

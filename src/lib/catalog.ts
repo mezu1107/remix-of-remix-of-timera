@@ -7,7 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
  * VITE_ASSET_BASE_URL to an absolute origin when hosting the frontend
  * elsewhere (e.g. Vercel) while assets stay on the Lovable domain.
  */
-const ASSET_BASE = (import.meta.env.VITE_ASSET_BASE_URL as string | undefined)?.replace(/\/$/, "") || "";
+const DEFAULT_ASSET_BASE = "https://timeras.lovable.app";
+const ASSET_BASE =
+  (import.meta.env.VITE_ASSET_BASE_URL as string | undefined)?.replace(/\/$/, "") || DEFAULT_ASSET_BASE;
 
 export const absUrl = (u: string | null | undefined): string => {
   if (!u) return "";

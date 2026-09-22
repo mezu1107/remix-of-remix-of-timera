@@ -350,12 +350,18 @@ function ProductPage() {
               ) : (
                 <img
                   key={mainImage}
-                  src={mainImage}
+                  src={mainImage || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80"}
                   alt={`${product.name} — ${color}`}
                   width={800}
                   height={800}
                   fetchPriority="high"
                   decoding="async"
+                  onError={(e) => {
+                    const fallback = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80";
+                    if (e.currentTarget.src !== fallback) {
+                      e.currentTarget.src = fallback;
+                    }
+                  }}
                   className="h-full w-full object-cover animate-in fade-in duration-200"
                 />
               )}
