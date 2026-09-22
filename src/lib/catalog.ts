@@ -2,14 +2,12 @@ import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Database image URLs are root-relative (`/__l5e/assets-v1/...`) and only
- * resolve on Lovable-hosted domains. Prefix them with the published origin so
- * images also load on external deployments (e.g. Vercel). Override with the
- * VITE_ASSET_BASE_URL env var if the site moves to a custom domain.
+ * Image URLs stored in the database are root-relative (`/__l5e/assets-v1/...`)
+ * and are served by this project's own origin, so they are used as-is. Set
+ * VITE_ASSET_BASE_URL to an absolute origin when hosting the frontend
+ * elsewhere (e.g. Vercel) while assets stay on the Lovable domain.
  */
-const ASSET_BASE =
-  (import.meta.env.VITE_ASSET_BASE_URL as string | undefined)?.replace(/\/$/, "") ||
-  "https://timeras.lovable.app";
+const ASSET_BASE = (import.meta.env.VITE_ASSET_BASE_URL as string | undefined)?.replace(/\/$/, "") || "";
 
 export const absUrl = (u: string | null | undefined): string => {
   if (!u) return "";
@@ -17,6 +15,7 @@ export const absUrl = (u: string | null | undefined): string => {
   if (t.startsWith("/")) return `${ASSET_BASE}${t}`;
   return t;
 };
+
 
 export type ProductColor = {
   name: string;
