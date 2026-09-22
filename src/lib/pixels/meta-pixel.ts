@@ -10,7 +10,7 @@
  */
 
 /** Hard-coded fallback pixel. Admin → Settings can override it at any time. */
-export const DEFAULT_META_PIXEL_ID = "2142980996256531";
+export const DEFAULT_META_PIXEL_ID = "4180744378882229";
 
 type FbqFn = ((...args: unknown[]) => void) & {
   callMethod?: (...args: unknown[]) => void;

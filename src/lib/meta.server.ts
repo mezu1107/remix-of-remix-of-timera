@@ -38,7 +38,7 @@ export async function loadMetaConfig(): Promise<MetaConfig> {
     .limit(1)
     .maybeSingle();
   return {
-    pixelId: data?.pixel_id ?? process.env["META_PIXEL_ID"] ?? "2142980996256531",
+    pixelId: data?.pixel_id ?? process.env["META_PIXEL_ID"] ?? "4180744378882229",
     adAccountId: data?.ad_account_id ?? process.env["META_AD_ACCOUNT_ID"] ?? null,
     apiVersion: data?.api_version || DEFAULT_VERSION,
     testEventCode: data?.test_event_code ?? null,

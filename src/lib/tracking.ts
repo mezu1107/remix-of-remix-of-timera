@@ -195,6 +195,22 @@ function fireBrowserPixels(name: TrackingEventName, payload: TrackingPayload) {
   if (standard) metaTrack(standard, metaParams);
   else metaTrackCustom(name, metaParams);
 
+  // Fire Meta Pixel 'Lead' event on every high-intent CTA action (Add to Cart, Buy Now, Checkout, Contact, WhatsApp, etc.)
+  const ctaLeadEvents: TrackingEventName[] = [
+    "add_to_cart",
+    "begin_checkout",
+    "place_order",
+    "upsell_add",
+    "sticky_buy_click",
+    "contact",
+    "whatsapp_click",
+    "newsletter_signup",
+    "quick_view",
+  ];
+  if (ctaLeadEvents.includes(name) && standard !== "Lead") {
+    metaTrack("Lead", metaParams);
+  }
+
   googleTrack(googleEventName[name], {
     page_path: payload.pagePath ?? window.location.pathname,
     currency,

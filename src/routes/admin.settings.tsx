@@ -211,8 +211,8 @@ function SettingsAdmin() {
       <Card title="Pixels & tracking">
         <Toggle checked={!!f.tracking_enabled} onChange={(v) => set("tracking_enabled", v)} label="Enable tracking on the storefront" />
         <Row2>
-          <Field label="Meta Pixel ID" help="Active Pixel: 2142980996256531">
-            <Input value={f.meta_pixel_id ?? "2142980996256531"} onChange={(e) => set("meta_pixel_id", e.target.value)} placeholder="2142980996256531" />
+          <Field label="Meta Pixel ID" help="Active Pixel: 4180744378882229">
+            <Input value={f.meta_pixel_id ?? "4180744378882229"} onChange={(e) => set("meta_pixel_id", e.target.value)} placeholder="4180744378882229" />
           </Field>
           <Field label="Google tag / GA4 ID" help="Example: G-XXXXXXXXXX or AW-XXXXXXXXXX">
             <Input value={f.google_tag_id ?? ""} onChange={(e) => set("google_tag_id", e.target.value)} placeholder="G- or AW- tag ID" />
