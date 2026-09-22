@@ -406,6 +406,7 @@ export type Database = {
           title: string
           title_accent: string | null
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           active?: boolean
@@ -420,6 +421,7 @@ export type Database = {
           title: string
           title_accent?: string | null
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           active?: boolean
@@ -434,6 +436,7 @@ export type Database = {
           title?: string
           title_accent?: string | null
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -681,6 +684,7 @@ export type Database = {
           first_utm_source: string | null
           first_utm_term: string | null
           id: string
+          idempotency_key: string | null
           items: Json
           last_touch_at: string | null
           last_utm_campaign: string | null
@@ -703,6 +707,11 @@ export type Database = {
           tracking_number: string | null
           updated_at: string
           user_id: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
         }
         Insert: {
           attribution?: Json
@@ -725,6 +734,7 @@ export type Database = {
           first_utm_source?: string | null
           first_utm_term?: string | null
           id?: string
+          idempotency_key?: string | null
           items?: Json
           last_touch_at?: string | null
           last_utm_campaign?: string | null
@@ -747,6 +757,11 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Update: {
           attribution?: Json
@@ -769,6 +784,7 @@ export type Database = {
           first_utm_source?: string | null
           first_utm_term?: string | null
           id?: string
+          idempotency_key?: string | null
           items?: Json
           last_touch_at?: string | null
           last_utm_campaign?: string | null
@@ -791,6 +807,11 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: []
       }
@@ -975,6 +996,7 @@ export type Database = {
           strap: string
           top_notes: Json
           updated_at: string
+          videos: Json | null
           water_resistance: string
         }
         Insert: {
@@ -1019,6 +1041,7 @@ export type Database = {
           strap?: string
           top_notes?: Json
           updated_at?: string
+          videos?: Json | null
           water_resistance?: string
         }
         Update: {
@@ -1063,6 +1086,7 @@ export type Database = {
           strap?: string
           top_notes?: Json
           updated_at?: string
+          videos?: Json | null
           water_resistance?: string
         }
         Relationships: []
@@ -1190,6 +1214,12 @@ export type Database = {
           tiktok_url: string | null
           tracking_enabled: boolean
           updated_at: string
+          video_showcase_title: string | null
+          video_showcase_url: string | null
+          video_ugc_title: string | null
+          video_ugc_url: string | null
+          video_wrist_title: string | null
+          video_wrist_url: string | null
           warranty_years: number
           whatsapp_number: string | null
           youtube_url: string | null
@@ -1227,6 +1257,12 @@ export type Database = {
           tiktok_url?: string | null
           tracking_enabled?: boolean
           updated_at?: string
+          video_showcase_title?: string | null
+          video_showcase_url?: string | null
+          video_ugc_title?: string | null
+          video_ugc_url?: string | null
+          video_wrist_title?: string | null
+          video_wrist_url?: string | null
           warranty_years?: number
           whatsapp_number?: string | null
           youtube_url?: string | null
@@ -1264,6 +1300,12 @@ export type Database = {
           tiktok_url?: string | null
           tracking_enabled?: boolean
           updated_at?: string
+          video_showcase_title?: string | null
+          video_showcase_url?: string | null
+          video_ugc_title?: string | null
+          video_ugc_url?: string | null
+          video_wrist_title?: string | null
+          video_wrist_url?: string | null
           warranty_years?: number
           whatsapp_number?: string | null
           youtube_url?: string | null
@@ -1334,49 +1376,73 @@ export type Database = {
     Views: {
       payment_settings_public: {
         Row: {
+          bank_account_number: string | null
+          bank_account_title: string | null
           bank_enabled: boolean | null
+          bank_iban: string | null
+          bank_name: string | null
           cod_charge: number | null
           cod_enabled: boolean | null
           created_at: string | null
           currency: string | null
           currency_symbol: string | null
           delivery_charge: number | null
+          easypaisa_account_name: string | null
           easypaisa_enabled: boolean | null
+          easypaisa_number: string | null
           free_delivery_above: number | null
           id: string | null
+          jazzcash_account_name: string | null
           jazzcash_enabled: boolean | null
+          jazzcash_number: string | null
           payment_note: string | null
           warranty_months: number | null
           warranty_note: string | null
         }
         Insert: {
+          bank_account_number?: string | null
+          bank_account_title?: string | null
           bank_enabled?: boolean | null
+          bank_iban?: string | null
+          bank_name?: string | null
           cod_charge?: number | null
           cod_enabled?: boolean | null
           created_at?: string | null
           currency?: string | null
           currency_symbol?: string | null
           delivery_charge?: number | null
+          easypaisa_account_name?: string | null
           easypaisa_enabled?: boolean | null
+          easypaisa_number?: string | null
           free_delivery_above?: number | null
           id?: string | null
+          jazzcash_account_name?: string | null
           jazzcash_enabled?: boolean | null
+          jazzcash_number?: string | null
           payment_note?: string | null
           warranty_months?: number | null
           warranty_note?: string | null
         }
         Update: {
+          bank_account_number?: string | null
+          bank_account_title?: string | null
           bank_enabled?: boolean | null
+          bank_iban?: string | null
+          bank_name?: string | null
           cod_charge?: number | null
           cod_enabled?: boolean | null
           created_at?: string | null
           currency?: string | null
           currency_symbol?: string | null
           delivery_charge?: number | null
+          easypaisa_account_name?: string | null
           easypaisa_enabled?: boolean | null
+          easypaisa_number?: string | null
           free_delivery_above?: number | null
           id?: string | null
+          jazzcash_account_name?: string | null
           jazzcash_enabled?: boolean | null
+          jazzcash_number?: string | null
           payment_note?: string | null
           warranty_months?: number | null
           warranty_note?: string | null
