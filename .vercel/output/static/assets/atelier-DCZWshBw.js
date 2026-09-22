@@ -1,0 +1,1 @@
+var e=`/assets/atelier-CtwFhpuy.jpg`;export{e as t};
