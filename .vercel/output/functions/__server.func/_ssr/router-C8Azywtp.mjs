@@ -23,7 +23,7 @@ import { t as Route$65 } from "./deals._slug-ZwEmSi9G.mjs";
 import { t as Route$66 } from "./policies._slug-BQ-PsKvj.mjs";
 import { t as Route$67 } from "./product._slug-HKAP3yrK.mjs";
 import { t as Route$68 } from "./trust-B_qTg4kt.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-BHA52Yxq.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-C8Azywtp.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var styles_default = "/assets/styles-B8KkLBtb.css";
@@ -2336,7 +2336,7 @@ var Route$50 = createFileRoute("/sitemap.xml")({ server: { handlers: { GET: asyn
 		}
 	];
 	try {
-		const { data } = await createClient(process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.VITE_SUPABASE_PUBLISHABLE_KEY, { auth: {
+		const { data } = await createClient(process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "https://gggxfqmyanodyshwkijl.supabase.co", process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "sb_publishable_qGXKDtJnGkd3OuOSRawWUw_60CKifyU", { auth: {
 			persistSession: false,
 			autoRefreshToken: false
 		} }).from("products").select("slug").eq("active", true);
