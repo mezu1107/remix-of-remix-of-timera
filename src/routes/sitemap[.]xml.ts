@@ -33,11 +33,17 @@ export const Route = createFileRoute("/sitemap.xml")({
         ];
 
         try {
-          const supabase = createClient(
-            process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL!,
-            process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.VITE_SUPABASE_PUBLISHABLE_KEY!,
-            { auth: { persistSession: false, autoRefreshToken: false } },
-          );
+          const supabaseUrl =
+            process.env.SUPABASE_URL ??
+            process.env.VITE_SUPABASE_URL ??
+            "https://gggxfqmyanodyshwkijl.supabase.co";
+          const supabaseKey =
+            process.env.SUPABASE_PUBLISHABLE_KEY ??
+            process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
+            "sb_publishable_qGXKDtJnGkd3OuOSRawWUw_60CKifyU";
+          const supabase = createClient(supabaseUrl, supabaseKey, {
+            auth: { persistSession: false, autoRefreshToken: false },
+          });
           const { data } = await supabase.from("products").select("slug").eq("active", true);
           for (const row of data ?? []) {
             entries.push({ path: `/product/${row.slug}`, changefreq: "weekly", priority: "0.8" });
