@@ -293,13 +293,21 @@ export const productsQuery = queryOptions({
   queryKey: ["products"],
   staleTime: 5 * 60_000,
   queryFn: async (): Promise<Product[]> => {
-    const { data, error } = await supabase
-      .from("products")
-      .select(LIST_COLUMNS)
-      .eq("active", true)
-      .order("sort_order", { ascending: true });
-    if (error) throw error;
-    return (data ?? []).map(mapProduct);
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select(LIST_COLUMNS)
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) {
+        console.error("[productsQuery error]:", error);
+        return [];
+      }
+      return (data ?? []).map(mapProduct);
+    } catch (err) {
+      console.error("[productsQuery catch]:", err);
+      return [];
+    }
   },
 });
 
@@ -311,61 +319,85 @@ export const isWatch = (p: Product) => p.productType !== "perfume";
 export const heroSlidesQuery = queryOptions({
   queryKey: ["hero_slides"],
   queryFn: async (): Promise<HeroSlide[]> => {
-    const { data, error } = await supabase
-      .from("hero_slides")
-      .select("*")
-      .eq("active", true)
-      .order("sort_order", { ascending: true });
-    if (error) throw error;
-    return (data ?? []).map((r: any) => ({
-      id: r.id,
-      eyebrow: r.eyebrow,
-      title: r.title,
-      titleAccent: r.title_accent,
-      description: r.description,
-      ctaLabel: r.cta_label,
-      ctaHref: r.cta_href,
-      image: absUrl(r.image_url ?? ""),
-      videoUrl: r.video_url ? absUrl(r.video_url) : null,
-    }));
+    try {
+      const { data, error } = await supabase
+        .from("hero_slides")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) {
+        console.error("[heroSlidesQuery error]:", error);
+        return [];
+      }
+      return (data ?? []).map((r: any) => ({
+        id: r.id,
+        eyebrow: r.eyebrow,
+        title: r.title,
+        titleAccent: r.title_accent,
+        description: r.description,
+        ctaLabel: r.cta_label,
+        ctaHref: r.cta_href,
+        image: absUrl(r.image_url ?? ""),
+        videoUrl: r.video_url ? absUrl(r.video_url) : null,
+      }));
+    } catch (err) {
+      console.error("[heroSlidesQuery catch]:", err);
+      return [];
+    }
   },
 });
 
 export const collectionsQuery = queryOptions({
   queryKey: ["collections"],
   queryFn: async (): Promise<Collection[]> => {
-    const { data, error } = await supabase
-      .from("collections")
-      .select("*")
-      .eq("active", true)
-      .order("sort_order", { ascending: true });
-    if (error) throw error;
-    return (data ?? []).map((r) => ({
-      id: r.id,
-      name: r.name,
-      slug: r.slug,
-      tagline: r.tagline,
-      image: r.image_url ? absUrl(r.image_url) : null,
-    }));
+    try {
+      const { data, error } = await supabase
+        .from("collections")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) {
+        console.error("[collectionsQuery error]:", error);
+        return [];
+      }
+      return (data ?? []).map((r) => ({
+        id: r.id,
+        name: r.name,
+        slug: r.slug,
+        tagline: r.tagline,
+        image: r.image_url ? absUrl(r.image_url) : null,
+      }));
+    } catch (err) {
+      console.error("[collectionsQuery catch]:", err);
+      return [];
+    }
   },
 });
 
 export const categoriesQuery = queryOptions({
   queryKey: ["categories"],
   queryFn: async (): Promise<Category[]> => {
-    const { data, error } = await supabase
-      .from("categories")
-      .select("*")
-      .eq("active", true)
-      .order("sort_order", { ascending: true });
-    if (error) throw error;
-    return (data ?? []).map((r: any) => ({
-      id: r.id,
-      name: r.name,
-      slug: r.slug,
-      description: r.description,
-      image: r.image_url ? absUrl(r.image_url) : null,
-    }));
+    try {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) {
+        console.error("[categoriesQuery error]:", error);
+        return [];
+      }
+      return (data ?? []).map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        slug: r.slug,
+        description: r.description,
+        image: r.image_url ? absUrl(r.image_url) : null,
+      }));
+    } catch (err) {
+      console.error("[categoriesQuery catch]:", err);
+      return [];
+    }
   },
 });
 
@@ -379,77 +411,101 @@ const withinWindow = (startsAt: string | null, endsAt: string | null) => {
 export const dealsQuery = queryOptions({
   queryKey: ["deals"],
   queryFn: async (): Promise<Deal[]> => {
-    const { data, error } = await supabase
-      .from("deals")
-      .select("*")
-      .eq("active", true)
-      .order("sort_order", { ascending: true });
-    if (error) throw error;
-    return (data ?? [])
-      .map((r: any) => ({
-        id: r.id,
-        slug: r.slug ?? r.id,
-        title: r.title,
-        subtitle: r.subtitle,
-        description: r.description,
-        badge: r.badge,
-        discountPercent: r.discount_percent ?? 0,
-        code: r.code,
-        image: r.image_url ? absUrl(r.image_url) : null,
-        ctaLabel: r.cta_label,
-        ctaHref: r.cta_href,
-        startsAt: r.starts_at,
-        endsAt: r.ends_at,
-      }))
-      .filter((d) => withinWindow(d.startsAt, d.endsAt));
+    try {
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) {
+        console.error("[dealsQuery error]:", error);
+        return [];
+      }
+      return (data ?? [])
+        .map((r: any) => ({
+          id: r.id,
+          slug: r.slug ?? r.id,
+          title: r.title,
+          subtitle: r.subtitle,
+          description: r.description,
+          badge: r.badge,
+          discountPercent: r.discount_percent ?? 0,
+          code: r.code,
+          image: r.image_url ? absUrl(r.image_url) : null,
+          ctaLabel: r.cta_label,
+          ctaHref: r.cta_href,
+          startsAt: r.starts_at,
+          endsAt: r.ends_at,
+        }))
+        .filter((d) => withinWindow(d.startsAt, d.endsAt));
+    } catch (err) {
+      console.error("[dealsQuery catch]:", err);
+      return [];
+    }
   },
 });
 
 export const popupsQuery = queryOptions({
   queryKey: ["popups"],
   queryFn: async (): Promise<Popup[]> => {
-    const { data, error } = await supabase
-      .from("popups")
-      .select("*")
-      .eq("active", true)
-      .order("sort_order", { ascending: true });
-    if (error) throw error;
-    return (data ?? [])
-      .map((r: any) => ({
-        id: r.id,
-        title: r.title,
-        message: r.message,
-        image: r.image_url ? absUrl(r.image_url) : null,
-        badge: r.badge,
-        ctaLabel: r.cta_label,
-        ctaHref: r.cta_href,
-        couponCode: r.coupon_code,
-        delaySeconds: r.delay_seconds ?? 6,
-        triggerType: r.trigger_type ?? "delay",
-        frequency: r.frequency ?? "session",
-        startsAt: r.starts_at,
-        endsAt: r.ends_at,
-      }))
-      .filter((p) => withinWindow(p.startsAt, p.endsAt));
+    try {
+      const { data, error } = await supabase
+        .from("popups")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) {
+        console.error("[popupsQuery error]:", error);
+        return [];
+      }
+      return (data ?? [])
+        .map((r: any) => ({
+          id: r.id,
+          title: r.title,
+          message: r.message,
+          image: r.image_url ? absUrl(r.image_url) : null,
+          badge: r.badge,
+          ctaLabel: r.cta_label,
+          ctaHref: r.cta_href,
+          couponCode: r.coupon_code,
+          delaySeconds: r.delay_seconds ?? 6,
+          triggerType: r.trigger_type ?? "delay",
+          frequency: r.frequency ?? "session",
+          startsAt: r.starts_at,
+          endsAt: r.ends_at,
+        }))
+        .filter((p) => withinWindow(p.startsAt, p.endsAt));
+    } catch (err) {
+      console.error("[popupsQuery catch]:", err);
+      return [];
+    }
   },
 });
 
 export const couponsQuery = queryOptions({
   queryKey: ["coupons"],
   queryFn: async (): Promise<Coupon[]> => {
-    const { data, error } = await supabase.from("coupons").select("*").eq("active", true);
-    if (error) throw error;
-    return (data ?? [])
-      .map((r: any) => ({
-        id: r.id,
-        code: r.code,
-        description: r.description,
-        discountType: r.discount_type,
-        discountValue: Number(r.discount_value ?? 0),
-        minOrder: Number(r.min_order ?? 0),
-        expiresAt: r.expires_at,
-      }))
-      .filter((c) => !c.expiresAt || new Date(c.expiresAt).getTime() > Date.now());
+    try {
+      const { data, error } = await supabase.from("coupons").select("*").eq("active", true);
+      if (error) {
+        console.error("[couponsQuery error]:", error);
+        return [];
+      }
+      return (data ?? [])
+        .map((r: any) => ({
+          id: r.id,
+          code: r.code,
+          description: r.description,
+          discountType: r.discount_type,
+          discountValue: Number(r.discount_value ?? 0),
+          minOrder: Number(r.min_order ?? 0),
+          expiresAt: r.expires_at,
+        }))
+        .filter((c) => !c.expiresAt || new Date(c.expiresAt).getTime() > Date.now());
+    } catch (err) {
+      console.error("[couponsQuery catch]:", err);
+      return [];
+    }
   },
 });
 
@@ -457,19 +513,27 @@ export const reviewsQuery = (productId?: string) =>
   queryOptions({
     queryKey: ["reviews", productId ?? "all"],
     queryFn: async (): Promise<Review[]> => {
-      let q = supabase.from("reviews").select("*").eq("approved", true);
-      if (productId) q = q.eq("product_id", productId);
-      const { data, error } = await q.order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []).map((r: any) => ({
-        id: r.id,
-        productId: r.product_id,
-        customerName: r.customer_name,
-        rating: r.rating ?? 5,
-        title: r.title,
-        body: r.body,
-        createdAt: r.created_at,
-      }));
+      try {
+        let q = supabase.from("reviews").select("*").eq("approved", true);
+        if (productId) q = q.eq("product_id", productId);
+        const { data, error } = await q.order("created_at", { ascending: false });
+        if (error) {
+          console.error("[reviewsQuery error]:", error);
+          return [];
+        }
+        return (data ?? []).map((r: any) => ({
+          id: r.id,
+          productId: r.product_id,
+          customerName: r.customer_name,
+          rating: r.rating ?? 5,
+          title: r.title,
+          body: r.body,
+          createdAt: r.created_at,
+        }));
+      } catch (err) {
+        console.error("[reviewsQuery catch]:", err);
+        return [];
+      }
     },
   });
 
@@ -479,50 +543,64 @@ export type Testimonial = { id: string; name: string; role: string | null; quote
 export const testimonialsQuery = queryOptions({
   queryKey: ["reviews", "featured"],
   queryFn: async (): Promise<Testimonial[]> => {
-    const { data, error } = await supabase
-      .from("reviews")
-      .select("*")
-      .eq("approved", true)
-      .eq("featured", true)
-      .order("created_at", { ascending: false })
-      .limit(8);
-    if (error) throw error;
-    return (data ?? []).map((r: any) => ({
-      id: r.id,
-      name: r.customer_name,
-      role: r.customer_role ?? null,
-      quote: r.body ?? r.title ?? "",
-      rating: r.rating ?? 5,
-    }));
+    try {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("approved", true)
+        .eq("featured", true)
+        .order("created_at", { ascending: false })
+        .limit(8);
+      if (error) {
+        console.error("[testimonialsQuery error]:", error);
+        return [];
+      }
+      return (data ?? []).map((r: any) => ({
+        id: r.id,
+        name: r.customer_name,
+        role: r.customer_role ?? null,
+        quote: r.body ?? r.title ?? "",
+        rating: r.rating ?? 5,
+      }));
+    } catch (err) {
+      console.error("[testimonialsQuery catch]:", err);
+      return [];
+    }
   },
 });
-
-
 
 export const blogPostsQuery = queryOptions({
   queryKey: ["blog_posts"],
   queryFn: async (): Promise<BlogPost[]> => {
-    const { data, error } = await supabase
-      .from("blog_posts")
-      .select("*")
-      .eq("published", true)
-      .order("published_at", { ascending: false });
-    if (error) throw error;
-    return (data ?? []).map((r) => ({
-      id: r.id,
-      slug: r.slug,
-      title: r.title,
-      excerpt: r.excerpt,
-      content: r.content,
-      author: r.author,
-      category: r.category,
-      image: r.image_url ? absUrl(r.image_url) : null,
-      date: new Date(r.published_at).toLocaleDateString("en-US", {
-        month: "long",
-        day: "2-digit",
-        year: "numeric",
-      }),
-    }));
+    try {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("published", true)
+        .order("published_at", { ascending: false });
+      if (error) {
+        console.error("[blogPostsQuery error]:", error);
+        return [];
+      }
+      return (data ?? []).map((r) => ({
+        id: r.id,
+        slug: r.slug,
+        title: r.title,
+        excerpt: r.excerpt,
+        content: r.content,
+        author: r.author,
+        category: r.category,
+        image: r.image_url ? absUrl(r.image_url) : null,
+        date: new Date(r.published_at).toLocaleDateString("en-US", {
+          month: "long",
+          day: "2-digit",
+          year: "numeric",
+        }),
+      }));
+    } catch (err) {
+      console.error("[blogPostsQuery catch]:", err);
+      return [];
+    }
   },
 });
 
@@ -554,42 +632,67 @@ export const paymentSettingsQuery = queryOptions({
   queryKey: ["payment_settings"],
   staleTime: 60_000,
   queryFn: async (): Promise<PaymentSettings> => {
-    // Signed-in shoppers can read the full row (incl. account details).
-    // Guests only get the safe public view — account numbers stay private.
-    const { data: sessionData } = await supabase.auth.getSession();
-    const source = sessionData.session ? "payment_settings" : "payment_settings_public";
-    const { data, error } = await supabase
-      .from(source as any)
-      .select("*")
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    if (error) throw error;
-    const r: any = data ?? {};
+    try {
+      const { data: sessionData } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+      const source = sessionData?.session ? "payment_settings" : "payment_settings_public";
+      const { data, error } = await supabase
+        .from(source as any)
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (error) console.error("[paymentSettingsQuery error]:", error);
+      const r: any = data ?? {};
 
-    return {
-      id: r.id ?? "",
-      currency: r.currency ?? "PKR",
-      currencySymbol: r.currency_symbol ?? "Rs",
-      codEnabled: r.cod_enabled ?? true,
-      codCharge: Number(r.cod_charge ?? 0),
-      deliveryCharge: Number(r.delivery_charge ?? 250),
-      freeDeliveryAbove: Number(r.free_delivery_above ?? 5000),
-      easypaisaEnabled: r.easypaisa_enabled ?? false,
-      easypaisaNumber: r.easypaisa_number ?? null,
-      easypaisaAccountName: r.easypaisa_account_name ?? null,
-      jazzcashEnabled: r.jazzcash_enabled ?? false,
-      jazzcashNumber: r.jazzcash_number ?? null,
-      jazzcashAccountName: r.jazzcash_account_name ?? null,
-      bankEnabled: r.bank_enabled ?? false,
-      bankName: r.bank_name ?? null,
-      bankAccountTitle: r.bank_account_title ?? null,
-      bankAccountNumber: r.bank_account_number ?? null,
-      bankIban: r.bank_iban ?? null,
-      warrantyMonths: r.warranty_months ?? 12,
-      warrantyNote: r.warranty_note ?? "",
-      paymentNote: r.payment_note ?? null,
-    };
+      return {
+        id: r.id ?? "",
+        currency: r.currency ?? "PKR",
+        currencySymbol: r.currency_symbol ?? "Rs",
+        codEnabled: r.cod_enabled ?? true,
+        codCharge: Number(r.cod_charge ?? 0),
+        deliveryCharge: Number(r.delivery_charge ?? 250),
+        freeDeliveryAbove: Number(r.free_delivery_above ?? 5000),
+        easypaisaEnabled: r.easypaisa_enabled ?? false,
+        easypaisaNumber: r.easypaisa_number ?? null,
+        easypaisaAccountName: r.easypaisa_account_name ?? null,
+        jazzcashEnabled: r.jazzcash_enabled ?? false,
+        jazzcashNumber: r.jazzcash_number ?? null,
+        jazzcashAccountName: r.jazzcash_account_name ?? null,
+        bankEnabled: r.bank_enabled ?? false,
+        bankName: r.bank_name ?? null,
+        bankAccountTitle: r.bank_account_title ?? null,
+        bankAccountNumber: r.bank_account_number ?? null,
+        bankIban: r.bank_iban ?? null,
+        warrantyMonths: r.warranty_months ?? 12,
+        warrantyNote: r.warranty_note ?? "",
+        paymentNote: r.payment_note ?? null,
+      };
+    } catch (err) {
+      console.error("[paymentSettingsQuery catch]:", err);
+      return {
+        id: "",
+        currency: "PKR",
+        currencySymbol: "Rs",
+        codEnabled: true,
+        codCharge: 0,
+        deliveryCharge: 250,
+        freeDeliveryAbove: 5000,
+        easypaisaEnabled: false,
+        easypaisaNumber: null,
+        easypaisaAccountName: null,
+        jazzcashEnabled: false,
+        jazzcashNumber: null,
+        jazzcashAccountName: null,
+        bankEnabled: false,
+        bankName: null,
+        bankAccountTitle: null,
+        bankAccountNumber: null,
+        bankIban: null,
+        warrantyMonths: 12,
+        warrantyNote: "",
+        paymentNote: null,
+      };
+    }
   },
 });
 
@@ -605,17 +708,25 @@ export const faqsQuery = queryOptions({
   queryKey: ["faqs"],
   staleTime: 60_000,
   queryFn: async (): Promise<Faq[]> => {
-    const { data, error } = await supabase
-      .from("faqs" as any)
-      .select("id,question,answer,category,sort_order")
-      .eq("active", true)
-      .order("sort_order", { ascending: true });
-    if (error) throw error;
-    return (data ?? []).map((r: any) => ({
-      id: r.id,
-      question: r.question,
-      answer: r.answer,
-      category: r.category ?? null,
-    }));
+    try {
+      const { data, error } = await supabase
+        .from("faqs" as any)
+        .select("id,question,answer,category,sort_order")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (error) {
+        console.error("[faqsQuery error]:", error);
+        return [];
+      }
+      return (data ?? []).map((r: any) => ({
+        id: r.id,
+        question: r.question,
+        answer: r.answer,
+        category: r.category ?? null,
+      }));
+    } catch (err) {
+      console.error("[faqsQuery catch]:", err);
+      return [];
+    }
   },
 });

@@ -176,14 +176,19 @@ export const siteSettingsQuery = queryOptions({
   queryKey: ["site_settings"],
   staleTime: 60_000,
   queryFn: async (): Promise<SiteSettings> => {
-    const { data, error } = await supabase
-      .from("site_settings" as any)
-      .select("*")
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    if (error) throw error;
-    return mapSiteSettings(data as any);
+    try {
+      const { data, error } = await supabase
+        .from("site_settings" as any)
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (error) console.error("[siteSettingsQuery error]:", error);
+      return mapSiteSettings(data as any);
+    } catch (err) {
+      console.error("[siteSettingsQuery catch]:", err);
+      return DEFAULT_SETTINGS;
+    }
   },
 });
 
